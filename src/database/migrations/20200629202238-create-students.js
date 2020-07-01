@@ -3,7 +3,7 @@ module.exports = {
     await queryInterface.createTable('students', {
       id: {
         type: Sequelize.INTEGER,
-        primatyKey: true,
+        primaryKey: true,
         allowNull: false,
         autoIncrement: true,
       },

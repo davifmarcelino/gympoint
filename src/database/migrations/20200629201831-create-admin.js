@@ -32,6 +32,6 @@ module.exports = {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.dropTable('admin');
+    await queryInterface.dropTable('admins');
   },
 };
