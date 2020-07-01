@@ -11,7 +11,7 @@ class SessionController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ erro: 'error validation' });
+      return res.status(400).json({ error: 'error validation' });
     }
 
     const { email, password } = req.body;
@@ -19,11 +19,11 @@ class SessionController {
     const admin = await Admin.findOne({ where: { email } });
 
     if (!admin) {
-      return res.status(401).json({ erro: 'Email not found' });
+      return res.status(401).json({ error: 'Email not found' });
     }
 
-    if (!(await admin.checkpassword(password))) {
-      return res.status(401).json({ erro: 'Passwor is wrong' });
+    if (!(await admin.checkPassword(password))) {
+      return res.status(401).json({ error: 'Passwor is wrong' });
     }
 
     const { id, name } = admin;

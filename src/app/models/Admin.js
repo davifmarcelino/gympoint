@@ -14,7 +14,7 @@ class Admin extends Model {
     return this;
   }
 
-  checkpassword(password) {
+  checkPassword(password) {
     return bcrypt.compare(password, this.password_hash);
   }
 }
