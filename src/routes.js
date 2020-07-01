@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import SessionController from './app/controllers/SessionController';
 import authMiddleware from './app/middlewares/auth';
-import StudentsCotroller from './app/controllers/StudentsController';
+import StudentsController from './app/controllers/StudentsController';
 
 const routes = new Router();
 
@@ -10,5 +10,5 @@ routes.post('/session', SessionController.store);
 
 routes.use(authMiddleware);
 
-routes.post('/students', StudentsCotroller.store);
+routes.post('/students', StudentsController.store);
 export default routes;

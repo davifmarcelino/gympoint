@@ -22,8 +22,8 @@ class SessionController {
       return res.status(401).json({ erro: 'Email not found' });
     }
 
-    if (!(await admin.checkpassword(password))) {
-      return res.status(401).json({ erro: 'Passwor is wrong' });
+    if (!(await admin.checkPassword(password))) {
+      return res.status(401).json({ erro: 'Password is wrong' });
     }
 
     const { id, name } = admin;
