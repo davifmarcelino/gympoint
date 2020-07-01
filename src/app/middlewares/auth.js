@@ -6,7 +6,7 @@ export default async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
-    return res.status(401).json({ error: 'Token didnt find' });
+    return res.status(401).json({ error: 'Token didn\'t find' });
   }
   const [, token] = authHeader.split(' ');
 

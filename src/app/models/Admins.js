@@ -1,7 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
 import bcrypt from 'bcryptjs';
 
-class Admin extends Model {
+class Admins extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -14,9 +14,9 @@ class Admin extends Model {
     return this;
   }
 
-  checkpassword(password) {
+  checkPassword(password) {
     return bcrypt.compare(password, this.password_hash);
   }
 }
 
-export default Admin;
+export default Admins;

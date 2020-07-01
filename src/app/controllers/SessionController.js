@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import * as Yup from 'yup';
-import Admin from '../models/Admin';
+import Admins from '../models/Admins';
 import authConfig from '../../config/auth';
 
 class SessionController {
@@ -16,14 +16,14 @@ class SessionController {
 
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ where: { email } });
+    const admin = await Admins.findOne({ where: { email } });
 
     if (!admin) {
       return res.status(401).json({ erro: 'Email not found' });
     }
 
     if (!(await admin.checkpassword(password))) {
-      return res.status(401).json({ erro: 'Passwor is wrong' });
+      return res.status(401).json({ erro: 'Password is wrong' });
     }
 
     const { id, name } = admin;
