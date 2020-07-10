@@ -23,7 +23,7 @@ class SessionController {
     }
 
     if (!(await admin.checkPassword(password))) {
-      return res.status(401).json({ error: 'Passwor is wrong' });
+      return res.status(401).json({ error: 'Password is wrong' });
     }
 
     const { id, name } = admin;
