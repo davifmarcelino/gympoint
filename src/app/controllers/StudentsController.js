@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
-import Students from '../models/Students';
+import Student from '../models/Student';
 
-class StudentsController {
+class StudentController {
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
@@ -15,11 +15,11 @@ class StudentsController {
       return res.status(400).json({ error: 'error validation' });
     }
 
-    if (await Students.findOne({ where: { email: req.body.email } })) {
+    if (await Student.findOne({ where: { email: req.body.email } })) {
       return res.status(401).json({ error: 'Email already exist' });
     }
 
-    const { id, name, email, age, height, weight } = await Students.create(
+    const { id, name, email, age, height, weight } = await Student.create(
       req.body
     );
 
@@ -37,11 +37,11 @@ class StudentsController {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'error validation' });
     }
-    if (await Students.findOne({ where: { email: req.body.email } })) {
+    if (await Student.findOne({ where: { email: req.body.email } })) {
       return res.status(400).json({ error: 'Email already exist' });
     }
 
-    const student = await Students.findByPk(req.params.id);
+    const student = await Student.findByPk(req.params.id);
     if (!student) {
       return res.status(400).json({ error: 'Student doesnt exist' });
     }
@@ -50,4 +50,4 @@ class StudentsController {
     return res.json({ id, name, age, weight, height });
   }
 }
-export default new StudentsController();
+export default new StudentController();
