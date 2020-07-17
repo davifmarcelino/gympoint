@@ -113,30 +113,29 @@ class RegistrantionController {
     if (await schema.isValid(req.body)) {
       return res.status(400).json({ error: 'Error validation' });
     }
-    const {
-      plan_id = registrantion.plan_id,
-      start_date = registrantion.start_date,
-    } = req.body;
-
+    const { plan_id, start_date } = req.body;
     const startDay = startOfDay(parseISO(start_date));
 
-    if (registrantion.start_date !== startDay) {
+    if (start_date && registrantion.start_date !== startDay) {
       if (isBefore(startDay, startDay(new Date()))) {
         return res.status(400).json({ error: 'Date is before today' });
       }
       registrantion.start_date = startDay;
-      if (registrantion.plan_id === plan_id) {
-        const plan = await Plan.findByPk(plan_id);
+      if (!plan_id || registrantion.plan_id === plan_id) {
+        const plan = await Plan.findByPk(registrantion.plan_id);
         registrantion.end_date = addMonths(startDay, plan.duration);
       }
     }
 
-    if (registrantion.plan_id !== plan_id) {
+    if (plan_id && registrantion.plan_id !== plan_id) {
       const plan = await Plan.findByPk(plan_id);
       if (!plan) {
         return res.status(400).json({ error: 'Plan does not ' });
       }
-      registrantion.end_date = addMonths(startDay, plan.duration);
+      registrantion.end_date = addMonths(
+        registrantion.start_date,
+        plan.duration
+      );
       registrantion.price = plan.price;
     }
 
@@ -145,7 +144,7 @@ class RegistrantionController {
     return res.json({
       student_id,
       plan_id,
-      start_date: startDay,
+      start_date: registrantion.start_date,
       price,
       end_date,
     });
