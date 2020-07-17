@@ -10,7 +10,7 @@ class RegistrationMail {
   async handle({ data }) {
     const { registration } = data;
     Mail.sendMail({
-      to: `${registration.student.name} <${registration.student.name}>`,
+      to: `${registration.student.name} <${registration.student.email}>`,
       subject: 'Bem Vindo a GymPoint',
       template: 'registration',
       context: {
