@@ -27,8 +27,8 @@ class HelpOrderController {
 
   async show(req, res) {
     const helpOrders = await HelpOrder.findAll({
-      where: { student_id: req.params.st },
-      attributes: ['student_id', 'question', 'answer', 'answer_at'],
+      where: { student_id: req.params.student_id },
+      attributes: ['id', 'student_id', 'question', 'answer', 'answer_at'],
       include: [{ model: Student, as: 'student', attributes: ['name'] }],
     });
 

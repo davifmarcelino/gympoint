@@ -28,13 +28,14 @@ class CheckinController {
         student_id: req.params.student_id,
       },
     });
-    if (checkins.length > 5) {
+
+    if (checkins.length >= 5) {
       return res
         .status(401)
         .json({ error: 'You have already used all of weeks check-in' });
     }
 
-    const { student_id } = Checkin.create(req.params);
+    const { student_id } = await Checkin.create(req.params);
 
     return res.json({ student_id });
   }

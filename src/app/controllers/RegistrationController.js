@@ -1,19 +1,20 @@
 import * as Yup from 'yup';
 import { parseISO, isBefore, startOfDay, addMonths } from 'date-fns';
-import Registrantion from '../models/Registration';
+import Registration from '../models/Registration';
 import Student from '../models/Student';
 import Plan from '../models/Plan';
 import Queue from '../../libs/Queue';
-import RegistrantionMail from '../../jobs/RegistrationMail';
+import RegistrationMail from '../jobs/RegistrationMail';
 
-class RegistrantionController {
+class RegistrationController {
   async store(req, res) {
     const schema = Yup.object().shape({
       start_date: Yup.date().required(),
       student_id: Yup.number().required(),
       plan_id: Yup.number().required(),
     });
-    if (await schema.isValid(req.body)) {
+
+    if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Error validation' });
     }
 
@@ -24,11 +25,11 @@ class RegistrantionController {
       return res.status(400).json({ error: 'Star date is before today' });
     }
 
-    const alreadyRegist = await Registrantion.findOne({
+    const alreadyRegist = await Registration.findOne({
       where: { student_id },
     });
     if (alreadyRegist) {
-      return res.status(400).json({ error: 'Student already registrantion' });
+      return res.status(400).json({ error: 'Student already registration' });
     }
 
     const student = await Student.findByPk(student_id);
@@ -43,23 +44,15 @@ class RegistrantionController {
 
     const endDay = addMonths(startDay, plan.duration);
 
-    const registrantion = await Registrantion.create(
-      {
-        student_id,
-        plan_id,
-        start_date: startDay,
-        end_date: endDay,
-        price: plan.price,
-      },
-      {
-        include: [
-          { model: Student, as: 'student', attributes: ['name', 'email'] },
-          { model: Plan, as: 'plan', attributes: ['name'] },
-        ],
-      }
-    );
+    const registration = await Registration.create({
+      student_id,
+      plan_id,
+      start_date: startDay,
+      end_date: endDay,
+      price: plan.price,
+    });
 
-    await Queue.add(RegistrantionMail.key, { registrantion });
+    await Queue.add(RegistrationMail.key, { registration, plan, student });
 
     return res.json({
       student_id,
@@ -73,7 +66,7 @@ class RegistrantionController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
-    const registrantions = Registrantion.findAll({
+    const registrations = Registration.findAll({
       order: ['end_date'],
       attributes: ['start_date', 'price', 'end_date'],
       limit: 20,
@@ -92,74 +85,71 @@ class RegistrantionController {
       ],
     });
 
-    if (!registrantions) {
+    if (!registrations) {
       return res.status(400).json({ error: 'Nobody student found' });
     }
 
-    return res.json(registrantions);
+    return res.json(registrations);
   }
 
   async update(req, res) {
-    const registrantion = await Registrantion.findByPk(req.params.id);
-    if (!registrantion) {
-      return res.status(400).json({ error: 'registrantion does not exist' });
+    const registration = await Registration.findByPk(req.params.id);
+    if (!registration) {
+      return res.status(400).json({ error: 'registration does not exist' });
     }
 
     const schema = Yup.object().shape({
-      plan_id: Yup.number(),
       start_date: Yup.date(),
+      plan_id: Yup.number(),
     });
 
-    if (await schema.isValid(req.body)) {
+    if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Error validation' });
     }
     const { plan_id, start_date } = req.body;
 
     if (start_date) {
       const startDay = startOfDay(parseISO(start_date));
-      if (isBefore(startDay, startDay(new Date()))) {
+      if (isBefore(startDay, startOfDay(new Date()))) {
         return res.status(400).json({ error: 'Date is before today' });
       }
-      registrantion.start_date = startDay;
-      if (!plan_id || registrantion.plan_id === plan_id) {
-        const plan = await Plan.findByPk(registrantion.plan_id);
-        registrantion.end_date = addMonths(startDay, plan.duration);
+      registration.start_date = startDay;
+      if (!plan_id || registration.plan_id === plan_id) {
+        const plan = await Plan.findByPk(registration.plan_id);
+        registration.end_date = addMonths(startDay, plan.duration);
       }
     }
 
-    if (plan_id && registrantion.plan_id !== plan_id) {
+    if (plan_id && registration.plan_id !== plan_id) {
       const plan = await Plan.findByPk(plan_id);
       if (!plan) {
         return res.status(400).json({ error: 'Plan does not ' });
       }
-      registrantion.end_date = addMonths(
-        registrantion.start_date,
-        plan.duration
-      );
-      registrantion.price = plan.price;
+      registration.end_date = addMonths(registration.start_date, plan.duration);
+      registration.price = plan.price;
     }
 
-    const { student_id, price, end_date } = await registrantion.save();
+    const { student_id, price, end_date } = await registration.save();
 
     return res.json({
       student_id,
       plan_id,
-      start_date: registrantion.start_date,
+      start_date: registration.start_date,
       price,
       end_date,
     });
   }
 
   async delete(req, res) {
-    const registrantion = await Registrantion.destroy({
+    const registration = await Registration.destroy({
       where: { id: req.params.id },
     });
 
-    if (registrantion) {
+    if (!registration) {
       return res.status(400).json({ error: 'Registration did not find' });
     }
     return res.json({ success: 'Registration was deleted' });
   }
 }
 
-export default new RegistrantionController();
+export default new RegistrationController();
