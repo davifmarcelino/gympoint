@@ -114,9 +114,9 @@ class RegistrantionController {
       return res.status(400).json({ error: 'Error validation' });
     }
     const { plan_id, start_date } = req.body;
-    const startDay = startOfDay(parseISO(start_date));
 
-    if (start_date && registrantion.start_date !== startDay) {
+    if (start_date) {
+      const startDay = startOfDay(parseISO(start_date));
       if (isBefore(startDay, startDay(new Date()))) {
         return res.status(400).json({ error: 'Date is before today' });
       }

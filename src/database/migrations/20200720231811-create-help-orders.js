@@ -1,37 +1,30 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('registration', {
+    await queryInterface.createTable('help_orders', {
       id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
         allowNull: false,
-        autoIncrement: true,
-        type: Sequelize.INTEGER,
       },
       student_id: {
         references: { model: 'students', key: 'id' },
         type: Sequelize.INTEGER,
         allowNull: true,
-        onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
       },
-      plan_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'plans', key: 'id' },
+      question: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      answer: {
+        type: Sequelize.STRING,
         allowNull: true,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
       },
-      start_date: {
+      answer_at: {
         type: Sequelize.DATE,
-        allowNull: false,
-      },
-      end_date: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      price: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
+        allowNull: true,
       },
       created_at: {
         type: Sequelize.DATE,
@@ -45,6 +38,6 @@ module.exports = {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.dropTable('registration');
+    await queryInterface.dropTable('help_orders');
   },
 };
